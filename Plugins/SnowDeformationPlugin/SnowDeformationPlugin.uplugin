@@ -18,7 +18,7 @@
 		{
 			"Name": "SnowDeformationPlugin",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "PostConfigInit"
 		}
 	]
 }

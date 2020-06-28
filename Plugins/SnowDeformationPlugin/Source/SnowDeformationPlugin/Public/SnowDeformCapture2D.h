@@ -42,22 +42,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	USceneCaptureComponent2D* SceneCapture = nullptr;
-	
-	// copy 不行， 得Add 像素点到Shader 里
-	void CopyRT_RenderThread(UTextureRenderTarget2D* m_sourceRT, UTextureRenderTarget2D* m_destRT)
-	{
-		check(IsInRenderingThread());
-		// Get global RHI command list 
-		FRHICommandListImmediate& RHICmdList = GRHICommandList.GetImmediateCommandList();
-		if (m_sourceRT && m_destRT)
-		{
-			FTexture2DRHIRef destTexture = m_destRT->GetRenderTargetResource()->GetRenderTargetTexture();
-			FTexture2DRHIRef sourceTexture = m_sourceRT->GetRenderTargetResource()->GetRenderTargetTexture();
 
-			FResolveParams param;
-			RHICmdList.CopyToResolveTarget(sourceTexture, destTexture, param);
-		}
-	}
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

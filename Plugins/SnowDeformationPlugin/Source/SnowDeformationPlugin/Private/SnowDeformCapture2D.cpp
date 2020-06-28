@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SnowDeformCapture2D.h"
-#include <SnowDeformationPlugin\Public\CopyPixelShader.h>
+#include <SnowDeformationPlugin\Public\AddRTPixelShader.h>
 
 // Sets default values for this component's properties
 USnowDeformCapture2D::USnowDeformCapture2D()
@@ -52,9 +52,7 @@ void USnowDeformCapture2D::TickComponent(float DeltaTime, ELevelTick TickType, F
 		SceneCapture->bAutoActivate = true;
 		//SceneCapture->DetailMode = EDetailMode::DM_High;
 
-
 		SceneCapture->AddLocalRotation(FRotator(90,90, 0));
-
 
 		APlayerController* currentPlayer = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 		FVector Position = currentPlayer->GetPawn()->GetActorLocation() + FVector(0, 0, -CaptureHeight - 100); // person height offset of 80
@@ -68,10 +66,21 @@ void USnowDeformCapture2D::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	// capture scene
 	SceneCapture->TextureTarget = SnowDeformRT;
-	SceneCapture->CaptureScene();
+	//SceneCapture->CaptureScene();
 
+
+	FTextureRHIRef RenderTargetInput = (SceneCapture->TextureTarget->Resource)->TextureRHI;
+
+	FTextureRHIRef GlobalTargetInput = (GlobalDeformRT->Resource)->TextureRHI;
+
+	UTextureRenderTarget2D* RenderTargetPersistent = GlobalDeformRT;
 	
-
+	ENQUEUE_RENDER_COMMAND(CaptureCommand)(
+		[RenderTargetInput, GlobalTargetInput, RenderTargetPersistent](FRHICommandListImmediate& RHICmdList)
+		{
+			FCopyTexturePixelShader::DrawToRenderTarget_RenderThread(RHICmdList, RenderTargetInput, GlobalTargetInput, RenderTargetPersistent);
+		}
+		);
 
 
 }
