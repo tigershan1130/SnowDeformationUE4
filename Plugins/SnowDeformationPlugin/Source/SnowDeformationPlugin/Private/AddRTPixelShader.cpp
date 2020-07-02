@@ -75,6 +75,7 @@ public:
 	BEGIN_SHADER_PARAMETER_STRUCT(FParameters, )
 		SHADER_PARAMETER_SRV(Texture2D, RenderTargetInput)
 		SHADER_PARAMETER_SRV(Texture2D, PersistentRTInput)
+		SHADER_PARAMETER(FVector2D, UVOffset)
 	END_SHADER_PARAMETER_STRUCT()
 
 public:
@@ -89,7 +90,7 @@ public:
 IMPLEMENT_GLOBAL_SHADER(FSimplePassThroughVS, "/SnowDeformShaders/Private/TS_FFTCopyPixelShader.usf", "MainVertexShader", SF_Vertex);
 IMPLEMENT_GLOBAL_SHADER(FPixelShaderCopyTexturePS, "/SnowDeformShaders/Private/TS_FFTCopyPixelShader.usf", "MainPixelShader", SF_Pixel);
 
-void FCopyTexturePixelShader::DrawToRenderTarget_RenderThread(FRHICommandListImmediate& RHICmdList, FTextureRHIRef RenderTargetInput, FTextureRHIRef PersistentTargetInput, UTextureRenderTarget2D* RenderTargetPersistent)
+void FCopyTexturePixelShader::DrawToRenderTarget_RenderThread(FRHICommandListImmediate& RHICmdList, FTextureRHIRef RenderTargetInput, FTextureRHIRef PersistentTargetInput, UTextureRenderTarget2D* RenderTargetPersistent,FVector2D UVOffset)
 {
 	check(IsInRenderingThread());
 
@@ -124,6 +125,10 @@ void FCopyTexturePixelShader::DrawToRenderTarget_RenderThread(FRHICommandListImm
 	FPixelShaderCopyTexturePS::FParameters PassParameters;
 	PassParameters.RenderTargetInput = RenderTargetInputRef;
 	PassParameters.PersistentRTInput = RenderTargetPersistentRef;
+	PassParameters.UVOffset = UVOffset;
+
+
+	UE_LOG(LogTemp, Warning, TEXT("%f, %f"), UVOffset.X, UVOffset.Y);
 
 	SetShaderParameters(RHICmdList, *PixelShader, PixelShader->GetPixelShader(), PassParameters);
 

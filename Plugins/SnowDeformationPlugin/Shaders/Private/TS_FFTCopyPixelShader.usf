@@ -1,11 +1,12 @@
-// Copyright 2019 Tiger Shan All Rights Reserved.
+﻿// Copyright 2019 Tiger Shan All Rights Reserved.
 
 #include "/Engine/Private/Common.ush"
 
-
+Texture2D<float4> RenderTargetInput;
+Texture2D<float4> PersistentRTInput;
+float2 uvOffset;
 
 //VERTEX SHADER
-
 void MainVertexShader(
 	float4 InPosition : ATTRIBUTE0,
 	float2 InUV : ATTRIBUTE1,
@@ -19,9 +20,6 @@ void MainVertexShader(
 
 
 //PIXEL SHADER
-Texture2D<float4> RenderTargetInput;
-Texture2D<float4> PersistentRTInput;
-
 void MainPixelShader(
 	in float2 uv : TEXCOORD0,
 	out float4 OutColor : SV_Target0
@@ -31,8 +29,17 @@ void MainPixelShader(
 
 	RenderTargetInput.GetDimensions(sizeX, sizeY); // this will not work on metal
 
-	float4 inputColor = RenderTargetInput.Load(int3(sizeX * uv.x, sizeY * (1-uv.y), 0));
-	float4 persistentColor = PersistentRTInput.Load(int3(sizeX * uv.x, sizeY * (1-uv.y), 0));
+	//float2 UV = float2(clamp(uv.x - uvOffset.x, 0.0, 1.0), clamp( (1- uv.y)  + uvOffset.y, 0.0, 1.0));
+	float2 UV = float2(uv.x - uvOffset.x, (1-uv.y) + uvOffset.y);
+	float mask = 1;
 
-    OutColor = float4(max(inputColor.x, persistentColor.x), 0, 0, 1);
+	if (UV.x < 0 || UV.x > 1 || UV.y < 0 || UV.y > 1)
+		mask = 0;
+
+
+
+	float4 inputColor = RenderTargetInput.Load(int3(sizeX * (UV.x), sizeY * (UV.y), 0));
+	//float4 persistentColor = PersistentRTInput.Load(int3(sizeX * uv.x, sizeY * (1-uv.y), 0));
+
+    OutColor = float4(inputColor.r * mask, 0, 0, 1);
 }

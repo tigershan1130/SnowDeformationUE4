@@ -37,11 +37,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Snow Deform Capture")
 		float CaptureHeight;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Snow Deform Capture")
+		UMaterialParameterCollection* MaterialParameterCollectionAsset;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	
+	virtual void BeginDestroy() override;
 
 	USceneCaptureComponent2D* SceneCapture = nullptr;
+
+	FVector PreviousCapturePos;
 
 public:	
 	// Called every frame

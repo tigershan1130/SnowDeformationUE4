@@ -9,6 +9,6 @@ class FCopyTexturePixelShader
 {
 public:
 
-    static void DrawToRenderTarget_RenderThread(FRHICommandListImmediate& RHICmdList, FTextureRHIRef RenderTargetInput, FTextureRHIRef PersistentTargetInput, UTextureRenderTarget2D* RenderTargetPersistent);
+    static void DrawToRenderTarget_RenderThread(FRHICommandListImmediate& RHICmdList, FTextureRHIRef RenderTargetInput, FTextureRHIRef PersistentTargetInput, UTextureRenderTarget2D* RenderTargetPersistent,FVector2D UVOffset);
 
 };
