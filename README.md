@@ -15,6 +15,7 @@ It also does projection inside land material.
 1. 动态积雪/遮挡效果: 我们可以加入一个Scene Capture 在人物头顶， 往下看人物角色， 通过渲染Custom Depth Buffer 获取是否整个人或者围绕人旁边的物体要做积雪的渲染；
 通过 Compare Custom Depth, 我们可以判定所有被遮挡的Depth 全部不做积雪和雨水效果在表面。
 2. 下雪效果  
+3. 通过计算写出Z field velocity 进入到Depth 时的计算， 写入到另外一个channel, 这样可以在displacement 的时候调整踩雪的强度.
 
 
 
