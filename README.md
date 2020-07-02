@@ -10,12 +10,11 @@ It also does projection inside land material.
 
 ![alt text](https://github.com/tigershan1130/SnowDeformationUE4/blob/master/HighresScreenshot00000.png)
 
-后期TODO, 动态积雪/遮挡效果:
+后期TODO:
 
-1. 我们可以加入一个Scene Capture 在人物头顶， 往下看人物角色， 通过渲染Custom Depth Buffer 获取是否整个人或者围绕人旁边的物体要做积雪的渲染；
-   通过 Compare Custom Depth, 我们可以判定所有被遮挡的Depth 全部不做积雪和雨水效果在表面。
-   
-2. 移动Persistent Buffer, 利用 Move Offset / Ortho With  绘制到UV Space, 这样我们可以根据人物去捕捉人物附件刚刚踩过的脚印， 而不是走出一段区域脚印就会消失。
-   
+1. 动态积雪/遮挡效果: 我们可以加入一个Scene Capture 在人物头顶， 往下看人物角色， 通过渲染Custom Depth Buffer 获取是否整个人或者围绕人旁边的物体要做积雪的渲染；
+通过 Compare Custom Depth, 我们可以判定所有被遮挡的Depth 全部不做积雪和雨水效果在表面。
+2. 下雪效果  
+
 
 
