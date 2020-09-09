@@ -4,6 +4,7 @@
 #include <SnowDeformationPlugin\Public\AddRTPixelShader.h>
 #include "Materials/MaterialParameterCollectionInstance.h"
 #include "Kismet/KismetRenderingLibrary.h"
+#include <Runtime\Engine\Public\DrawDebugHelpers.h>
 
 // Sets default values for this component's properties
 USnowDeformCapture2D::USnowDeformCapture2D()
@@ -60,7 +61,42 @@ void USnowDeformCapture2D::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 
 	APlayerController* currentPlayer = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+	// line trace position z against landscape
+	FCollisionQueryParams TraceParams(FName(TEXT("InteractTrace")), true, NULL);
+	TraceParams.bTraceComplex = true;
+	TraceParams.bReturnPhysicalMaterial = true;
+
+	//FCollisionObjectQueryParams TraceObjectParams();
+
+
+	// Re-Initialize hit info
+	FHitResult HitDetails = FHitResult(ForceInit);
+
+	FVector StartPosition = FVector(currentPlayer->GetPawn()->GetActorLocation().X, currentPlayer->GetPawn()->GetActorLocation().Y, currentPlayer->GetPawn()->GetActorLocation().Z + 20);
+	FVector End = FVector(currentPlayer->GetPawn()->GetActorLocation().X, currentPlayer->GetPawn()->GetActorLocation().Y, currentPlayer->GetPawn()->GetActorLocation().Z - 1000);
+
+	DrawDebugLine(GetWorld(), StartPosition, End, FColor::Red, false, -1.0f, 0.0f, 1.0f);
+
+	//bool bIsHit = GetWorld()->LineTraceSingleByObjectType(HitDetails, StartPosition, End, 
+
+
+	bool bIsHit = GetWorld()->LineTraceSingleByChannel(HitDetails, StartPosition, End, ECC_GameTraceChannel2, TraceParams);
+
+
 	FVector Position = currentPlayer->GetPawn()->GetActorLocation() + FVector(0, 0, -CaptureHeight - 100); // person height offset of 80
+
+	if (bIsHit)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Hit Object %s"), *(HitDetails.GetComponent()->GetName()));
+		Position = FVector(currentPlayer->GetPawn()->GetActorLocation().X, currentPlayer->GetPawn()->GetActorLocation().Y, HitDetails.ImpactPoint.Z - CaptureHeight);
+		DrawDebugSphere(GetWorld(), Position, 10, 60, FColor::Blue);
+	}
+
+	
+
+
+
 	FVector2D OffsetPos = FVector2D(0, 0);
 
 	if (SceneCapture == nullptr)
@@ -75,7 +111,7 @@ void USnowDeformCapture2D::TickComponent(float DeltaTime, ELevelTick TickType, F
 		SceneCapture->CompositeMode = ESceneCaptureCompositeMode::SCCM_Overwrite;
 		SceneCapture->bCaptureOnMovement = true;
 		SceneCapture->bCaptureEveryFrame = true;
-		SceneCapture->MaxViewDistanceOverride = CaptureHeight;
+		SceneCapture->MaxViewDistanceOverride = CaptureHeight + 200;
 		SceneCapture->bAutoActivate = true;
 		//SceneCapture->DetailMode = EDetailMode::DM_High;
 
@@ -122,6 +158,9 @@ void USnowDeformCapture2D::TickComponent(float DeltaTime, ELevelTick TickType, F
 	FVector2D OffsetUV = OffsetPos / CaptureSize;
 
 	FVector CaptureLocation = FVector(PreviousCapturePos.X + OffsetPos.X, OffsetPos.Y + PreviousCapturePos.Y, Position.Z);
+
+
+
 	// since ortho doesn't matter.
 	SceneCapture->SetWorldLocation(CaptureLocation);
 
