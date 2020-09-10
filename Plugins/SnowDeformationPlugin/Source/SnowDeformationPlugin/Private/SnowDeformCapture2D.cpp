@@ -76,7 +76,7 @@ void USnowDeformCapture2D::TickComponent(float DeltaTime, ELevelTick TickType, F
 	FVector StartPosition = FVector(currentPlayer->GetPawn()->GetActorLocation().X, currentPlayer->GetPawn()->GetActorLocation().Y, currentPlayer->GetPawn()->GetActorLocation().Z + 20);
 	FVector End = FVector(currentPlayer->GetPawn()->GetActorLocation().X, currentPlayer->GetPawn()->GetActorLocation().Y, currentPlayer->GetPawn()->GetActorLocation().Z - 1000);
 
-	DrawDebugLine(GetWorld(), StartPosition, End, FColor::Red, false, -1.0f, 0.0f, 1.0f);
+
 
 	//bool bIsHit = GetWorld()->LineTraceSingleByObjectType(HitDetails, StartPosition, End, 
 
@@ -84,13 +84,17 @@ void USnowDeformCapture2D::TickComponent(float DeltaTime, ELevelTick TickType, F
 	bool bIsHit = GetWorld()->LineTraceSingleByChannel(HitDetails, StartPosition, End, ECC_GameTraceChannel2, TraceParams);
 
 
-	FVector Position = currentPlayer->GetPawn()->GetActorLocation() + FVector(0, 0, -CaptureHeight - 100); // person height offset of 80
+	FVector Position = currentPlayer->GetPawn()->GetActorLocation() + FVector(0, 0, -100); // person height offset of 80
+
+	FVector HitLocation = Position;
 
 	if (bIsHit)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Hit Object %s"), *(HitDetails.GetComponent()->GetName()));
-		Position = FVector(currentPlayer->GetPawn()->GetActorLocation().X, currentPlayer->GetPawn()->GetActorLocation().Y, HitDetails.ImpactPoint.Z - CaptureHeight);
-		DrawDebugSphere(GetWorld(), Position, 10, 60, FColor::Blue);
+		Position = FVector(currentPlayer->GetPawn()->GetActorLocation().X, currentPlayer->GetPawn()->GetActorLocation().Y, HitDetails.ImpactPoint.Z- 10);
+		DrawDebugLine(GetWorld(), StartPosition, Position, FColor::Red, false, -1.0f, 0.0f, 1.0f);
+		HitLocation = HitDetails.ImpactPoint;
+		//DrawDebugSphere(GetWorld(), Position, 10, 60, FColor::Blue);
 	}
 
 	
@@ -111,7 +115,7 @@ void USnowDeformCapture2D::TickComponent(float DeltaTime, ELevelTick TickType, F
 		SceneCapture->CompositeMode = ESceneCaptureCompositeMode::SCCM_Overwrite;
 		SceneCapture->bCaptureOnMovement = true;
 		SceneCapture->bCaptureEveryFrame = true;
-		SceneCapture->MaxViewDistanceOverride = CaptureHeight + 200;
+		SceneCapture->MaxViewDistanceOverride = CaptureHeight;
 		SceneCapture->bAutoActivate = true;
 		//SceneCapture->DetailMode = EDetailMode::DM_High;
 
@@ -168,6 +172,7 @@ void USnowDeformCapture2D::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	inst->SetVectorParameterValue("CaptureLocation", CaptureLocation);
 	inst->SetScalarParameterValue("ProjectionRatio", ProjectionRatio);
+	inst->SetVectorParameterValue("HitLocation", HitLocation);
 
 	ENQUEUE_RENDER_COMMAND(CaptureCommand)(
 		[RenderTargetInput, GlobalTargetInput, RenderTargetPersistent, OffsetUV](FRHICommandListImmediate& RHICmdList)
